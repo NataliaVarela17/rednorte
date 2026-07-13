@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.rednorte</groupId>
+    <artifactId>rednorte-microservicios</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>RedNorte Microservicios</name>
+    <modules>
+        <module>eureka-server</module>
+        <module>api-gateway</module>
+        <module>service-centros</module>
+        <module>service-recursos</module>
+        <module>service-pacientes</module>
+        <module>service-medicos</module>
+        <module>service-citas</module>
+        <module>service-fichas</module>
+        <module>service-farmacia</module>
+        <module>service-laboratorio</module>
+        <module>service-urgencias</module>
+        <module>service-notificaciones</module>
+    </modules>
+</project>

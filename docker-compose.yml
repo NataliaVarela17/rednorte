@@ -1,0 +1,272 @@
+version: '3.8'
+
+services:
+
+  # ===================== BASE DE DATOS =====================
+  mysql:
+    image: mysql:8.0
+    container_name: rednorte-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - rednorte-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ===================== EUREKA SERVER =====================
+  eureka-server:
+    build: ./eureka-server
+    container_name: rednorte-eureka
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - rednorte-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8761/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+
+  # ===================== API GATEWAY =====================
+  api-gateway:
+    build: ./api-gateway
+    container_name: rednorte-gateway
+    hostname: api-gateway
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_HOST: eureka-server
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - rednorte-network
+
+  # ===================== MICROSERVICIOS =====================
+  service-centros:
+    build: ./service-centros
+    container_name: rednorte-centros
+    hostname: service-centros
+    restart: on-failure
+    ports:
+      - "8081:8081"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - rednorte-network
+
+  service-recursos:
+    build: ./service-recursos
+    container_name: rednorte-recursos
+    hostname: service-recursos
+    restart: on-failure
+    ports:
+      - "8082:8082"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - rednorte-network
+
+  service-pacientes:
+    build: ./service-pacientes
+    container_name: rednorte-pacientes
+    hostname: service-pacientes
+    restart: on-failure
+    ports:
+      - "8083:8083"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - rednorte-network
+
+  service-medicos:
+    build: ./service-medicos
+    container_name: rednorte-medicos
+    hostname: service-medicos
+    restart: on-failure
+    ports:
+      - "8084:8084"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - rednorte-network
+
+  service-citas:
+    build: ./service-citas
+    container_name: rednorte-citas
+    hostname: service-citas
+    restart: on-failure
+    ports:
+      - "8085:8085"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      service-pacientes:
+        condition: service_started
+      service-medicos:
+        condition: service_started
+      service-centros:
+        condition: service_started
+    networks:
+      - rednorte-network
+
+  service-fichas:
+    build: ./service-fichas
+    container_name: rednorte-fichas
+    hostname: service-fichas
+    restart: on-failure
+    ports:
+      - "8086:8086"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      service-pacientes:
+        condition: service_started
+    networks:
+      - rednorte-network
+
+  service-farmacia:
+    build: ./service-farmacia
+    container_name: rednorte-farmacia
+    hostname: service-farmacia
+    restart: on-failure
+    ports:
+      - "8087:8087"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - rednorte-network
+
+  service-laboratorio:
+    build: ./service-laboratorio
+    container_name: rednorte-laboratorio
+    hostname: service-laboratorio
+    restart: on-failure
+    ports:
+      - "8088:8088"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - rednorte-network
+
+  service-urgencias:
+    build: ./service-urgencias
+    container_name: rednorte-urgencias
+    hostname: service-urgencias
+    restart: on-failure
+    ports:
+      - "8089:8089"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      service-centros:
+        condition: service_started
+    networks:
+      - rednorte-network
+
+  service-notificaciones:
+    build: ./service-notificaciones
+    container_name: rednorte-notificaciones
+    hostname: service-notificaciones
+    restart: on-failure
+    ports:
+      - "8090:8090"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      EUREKA_HOST: eureka-server
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - rednorte-network
+
+networks:
+  rednorte-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

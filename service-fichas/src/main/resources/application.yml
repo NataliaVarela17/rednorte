@@ -1,0 +1,53 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: service-fichas
+  datasource:
+    url: jdbc:mysql://${DB_HOST:host.docker.internal}:3306/rednorte_fichas?createDatabaseIfNotExist=true&serverTimezone=UTC
+    username: ${DB_USER:root}
+    password: ${DB_PASS:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:host.docker.internal}:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: false
+    instance-id: service-fichas:8086
+    hostname: localhost
+    non-secure-port: 8086
+    ip-address: localhost
+    status-page-url: http://localhost:8086/actuator/info
+    health-check-url: http://localhost:8086/actuator/health
+    home-page-url: http://localhost:8086/
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+services:
+  pacientes:
+    url: http://service-pacientes
