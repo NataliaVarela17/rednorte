@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 9082
 
 spring:
   application:
@@ -28,13 +28,13 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: false
-    instance-id: service-recursos:8082
+    instance-id: service-recursos:9082
     hostname: localhost
-    non-secure-port: 8082
+    non-secure-port: 9082
     ip-address: localhost
-    status-page-url: http://localhost:8082/actuator/info
-    health-check-url: http://localhost:8082/actuator/health
-    home-page-url: http://localhost:8082/
+    status-page-url: http://localhost:9082/actuator/info
+    health-check-url: http://localhost:9082/actuator/health
+    home-page-url: http://localhost:9082/
 
 springdoc:
   swagger-ui:

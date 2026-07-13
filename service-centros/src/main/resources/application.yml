@@ -1,74 +1,24 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   application:
-    name: api-gateway
-  cloud:
-    gateway:
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods: "*"
-            allowedHeaders: "*"
-      default-filters:
-        - AddResponseHeader=X-Gateway, RedNorte-Gateway
-      routes:
-        - id: service-centros
-          uri: lb://service-centros
-          predicates:
-            - Path=/api/centros/**
-
-        - id: service-recursos-salas
-          uri: lb://service-recursos
-          predicates:
-            - Path=/api/salas/**
-
-        - id: service-recursos-equipamiento
-          uri: lb://service-recursos
-          predicates:
-            - Path=/api/equipamiento/**
-
-        - id: service-pacientes
-          uri: lb://service-pacientes
-          predicates:
-            - Path=/api/pacientes/**
-
-        - id: service-medicos
-          uri: lb://service-medicos
-          predicates:
-            - Path=/api/medicos/**
-
-        - id: service-citas
-          uri: lb://service-citas
-          predicates:
-            - Path=/api/citas/**
-
-        - id: service-fichas
-          uri: lb://service-fichas
-          predicates:
-            - Path=/api/fichas/**
-
-        - id: service-farmacia
-          uri: lb://service-farmacia
-          predicates:
-            - Path=/api/farmacia/**
-
-        - id: service-laboratorio
-          uri: lb://service-laboratorio
-          predicates:
-            - Path=/api/laboratorio/**
-
-        - id: service-urgencias
-          uri: lb://service-urgencias
-          predicates:
-            - Path=/api/urgencias/**
-
-        - id: service-notificaciones
-          uri: lb://service-notificaciones
-          predicates:
-            - Path=/api/notificaciones/**
+    name: service-centros
+  datasource:
+    url: jdbc:mysql://${DB_HOST:host.docker.internal}:3306/rednorte_centros?createDatabaseIfNotExist=true&serverTimezone=UTC
+    username: ${DB_USER:root}
+    password: ${DB_PASS:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
 
 eureka:
   client:
@@ -79,15 +29,24 @@ eureka:
   instance:
     prefer-ip-address: false
     hostname: localhost
-    instance-id: api-gateway:8080
-    non-secure-port: 8080
+    instance-id: service-centros:8081
+    non-secure-port: 8081
     ip-address: localhost
+    status-page-url: http://localhost:8081/actuator/info
+    health-check-url: http://localhost:8081/actuator/health
+    home-page-url: http://localhost:8081/
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info
 
 logging:
   level:
